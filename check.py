@@ -7,6 +7,9 @@ from sklearn import metrics
 
 
 def make_data_from_words(file_name):
+    """ Функция из файла со словами делает датасет
+        половину слов кодирует в base64 и мешает массив
+    """
     with open(file_name) as f:
         data = f.read().splitlines()
         length_of_data = len(data)
@@ -21,6 +24,10 @@ def make_data_from_words(file_name):
 
 
 def process_string(string):
+    """ Выделяет признаки из строки
+        содержится ли в строке знак "=" или цифры или "'"
+        возвращает массив с числовыми признаками
+    """
     length_of_string = len(string)
     has_equal_sign = 0
     has_dash_sign = 0
@@ -35,6 +42,7 @@ def process_string(string):
 
 
 def form_x_and_y(data):
+    """ Делит датасет на х и у """
     x = []
     y = []
     for d in data:
@@ -45,6 +53,8 @@ def form_x_and_y(data):
 
 
 def fit(x, y, classifier):
+    """Сеть тренируется, а также строится ROC-кривая"""
+
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
     classifier.fit(x_train, y_train)
     print('Accuracy of Logistic regression classifier on training set: {:.2f}'
@@ -57,12 +67,14 @@ def fit(x, y, classifier):
 
 
 def predict(string, classifier):
+    """Предсказывает строка или base64"""
     processed_string = [process_string(string)]
     prediction = classifier.predict(processed_string)[0]
     return "string" if prediction == 0 else "base64"
 
 
 def add_base64_to_text(text):
+    """Конвертирует часть слов из текста в base64"""
     copy_of_text = []
     for word in text:
         r = random.randint(0, 1)
@@ -75,6 +87,7 @@ def add_base64_to_text(text):
 
 
 def process_text(file_name, classifier):
+    """Предсказывает, где в тексте обычные строки, а где base64"""
     with open(file_name) as f:
         text = f.read().split()
         text_with_base64 = add_base64_to_text(text)
@@ -83,6 +96,8 @@ def process_text(file_name, classifier):
 
 
 def build_roc_curve(y_test, y_pred_proba):
+    """Строит ROC-кривую"""
+
     fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_proba)
     auc = metrics.roc_auc_score(y_test, y_pred_proba)
     plt.plot(fpr, tpr, label="data 1, auc=" + str(auc))
